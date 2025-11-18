@@ -234,4 +234,7 @@ __marimo__/
 .idea/uiDesigner.xml
 .idea/httpRequests
 .idea/inspectionProfiles
-.idea/runConfigurations/
+.idea/runConfigurations/\
+
+salt.bin
+vault.json
