@@ -23,7 +23,7 @@ def init_vault():
 
 def add_to_vault(site: str, password: str) -> bool:
     vault_data = {"vault": {}}
-
+    
     if os.path.exists("vault.json"):
         with open("vault.json", "r") as vault_file:
             vault_data = json.load(vault_file)

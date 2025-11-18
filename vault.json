@@ -1,7 +1,0 @@
-{
-    "vault": {
-        "master": "$argon2id$v=19$m=65536,t=3,p=4$k1aQ/wyTZEudGe34hUfXew$PG0J0acKPUid1UNICHYdpRwSFBaqrZ2dzscD+JNzsgk",
-        "Google": "gAAAAABpHIUwZH1A5pdNV2kO_eNYy3NLlZDfFP76vE12uy1a_d5OzSj4L6AKSEgXgkK098ltY0-c8LFFisW9-LH7STN3vQPBht-bi_MUmpZVD_d9naUA2A8=",
-        "Github": "gAAAAABpHId_ZyxX6AUbq91PhoTi_Wl5UGogFES6Dvo-fYAGzRqEbx5-rTDBqlohRVvsx8ATjCjgQgGpcUPf5phzEt19vTdf7nspz9vHUxGVQ0tFZ-n7WbU="
-    }
-}

@@ -1,6 +1,6 @@
 import sys
 import json
-
+import utils as ut
 from PySide6 import QtCore
 
 import password as ps
@@ -19,21 +19,6 @@ from PySide6.QtWidgets import (
 from password import hash_master_password
 
 
-def first_time():
-    if not os.path.exists("salt.bin"):
-        with open("salt.bin", "x") as salt_file:
-            ps.generate_salt()
-            return True
-    else:
-        try:
-            with open("vault.json", "r") as vault_file:
-                vault_data = json.load(vault_file)
-                if vault_data is None or "master" not in vault_data.get("vault", {}):
-                    return True
-        except (json.JSONDecodeError, FileNotFoundError):
-            return True
-    return False
-
 def center_widget(widget):
     screen = QGuiApplication.primaryScreen()
     if screen is None:
@@ -43,6 +28,34 @@ def center_widget(widget):
     geom = widget.frameGeometry()
     geom.moveCenter(screen_geo.center())
     widget.move(geom.topLeft())
+
+class ForgotPassword(QWidget):
+    def __init__(self):
+        super().__init__()
+        layout = QVBoxLayout()
+
+        self.setWindowTitle("Forgot Password")
+        self.label = QLabel("You have forgotten your master password.\n"
+                            "Unfortunately, there is no way to recover it.\n"
+                            "You will need to delete the vault.json and salt.bin files to start over.\n"
+                            "Click here to erase it.")
+        self.label.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(self.label)
+
+        self.EraseButton = QPushButton("Erase Vault")
+        self.EraseButton.clicked.connect(self.erase_vault)
+        layout.addWidget(self.EraseButton)
+
+        self.setLayout(layout)
+        center_widget(self)
+
+    def erase_vault(self):
+        if os.path.exists("vault.json"):
+            os.remove("vault.json")
+        if os.path.exists("salt.bin"):
+            os.remove("salt.bin")
+        self.label.setText("Vault erased. Please restart the application.")
+        self.EraseButton.setEnabled(False)
 
 class AddWindow(QWidget):
     def __init__(self, list_widget: QListWidget):
@@ -87,7 +100,7 @@ class SetupWindow(QWidget):
         layout.addWidget(self.lineedit)
 
         self.lineeditconfirm = QLineEdit()
-        self.lineeditconfirm.setEchoMode(QLineEdit.EchoMode.NoEcho)
+        self.lineeditconfirm.setEchoMode(QLineEdit.EchoMode.Password)
         self.lineeditconfirm.setPlaceholderText("Confirm your new password")
         self.lineeditconfirm.returnPressed.connect(self.return_pressed)
         layout.addWidget(self.lineeditconfirm)
@@ -129,7 +142,7 @@ class RenameWindow(QWidget):
         new_name = self.lineedit.text()
         if new_name:
             self.rename_site(self.old_name, new_name)
-            items = self.list_widget.findItems(self.old_name, QtCore.Qt.MatchExactly)
+            items = self.list_widget.findItems(self.old_name, QtCore.Qt.MatchFlag.MatchExactly)
             if items:
                 item = items[0]
                 item.setText(new_name)
@@ -241,11 +254,20 @@ class LoginWindow(QListWidget):
         self.lineedit.setPlaceholderText("Type your master Password")
         self.lineedit.returnPressed.connect(self.check_password)
         self.setWindowTitle("Login")
-
+        self.lineedit.setEchoMode(QLineEdit.EchoMode.Password)
         layout = QVBoxLayout()
         layout.addWidget(self.lineedit)
+
+        self.button_forgot = QPushButton("Forgot Password")
+        self.button_forgot.clicked.connect(self.forgot_password)
+        layout.addWidget(self.button_forgot)
+
         self.setLayout(layout)
         center_widget(self)
+
+    def forgot_password(self):
+        self.forgot_window = ForgotPassword()
+        self.forgot_window.show()
 
     def check_password(self):
         password = self.lineedit.text()
@@ -258,12 +280,8 @@ class LoginWindow(QListWidget):
             self.lineedit.clear()
             self.lineedit.setPlaceholderText("Wrong Password")
 
-
-def cleanup():
-    ps.master_password = None
-
-lebool = first_time()
+lebool = ut.first_time()
 app = QApplication(sys.argv)
 window = MainWindow(lebool)
-app.aboutToQuit.connect(cleanup)
+app.aboutToQuit.connect(ut.cleanup)
 app.exec()
