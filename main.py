@@ -7,6 +7,7 @@ import password as ps
 import os
 from PySide6.QtGui import QGuiApplication
 
+
 from PySide6.QtWidgets import (
     QApplication,
     QLabel,
@@ -184,6 +185,7 @@ class MainWindow(QMainWindow):
 
         self.list_widget = QListWidget()
         self.list_widget.addItems(ps.sites)
+        self.list_widget.itemDoubleClicked.connect(self.on_item_clicked)
         layout.addWidget(self.list_widget)
 
         self.add_button = QPushButton("Add")
@@ -235,6 +237,10 @@ class MainWindow(QMainWindow):
             item = self.list_widget.item(i)
             item.setHidden(text.lower() not in item.text().lower())
 
+    def on_item_clicked(self, item):
+            clipboard = QApplication.clipboard()
+            clipboard.setText(ps.get_password_from_vault(item.text()))
+
 class LoginWindow(QListWidget):
     def __init__(self, main_window: QMainWindow):
         super().__init__()
@@ -270,8 +276,12 @@ class LoginWindow(QListWidget):
             self.lineedit.clear()
             self.lineedit.setPlaceholderText("Wrong Password")
 
-lebool = ut.first_time()
-app = QApplication(sys.argv)
-window = MainWindow(lebool)
-app.aboutToQuit.connect(ut.cleanup)
-app.exec()
+def main():
+    lebool = ut.first_time()
+    app = QApplication(sys.argv)
+    window = MainWindow(lebool)
+    app.aboutToQuit.connect(ut.cleanup)
+    app.exec()
+
+if __name__ == "__main__":
+    main()

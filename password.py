@@ -2,19 +2,22 @@ import json
 import os
 import secrets
 import base64
-from os import urandom
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.hazmat.primitives import hashes
 from cryptography.fernet import Fernet
 from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError, VerificationError, InvalidHashError
 
+config_dir = os.path.join(os.path.expanduser("~"), ".local/share/PassManager")
+os.makedirs(config_dir, exist_ok=True)
+vault_path = os.path.join(config_dir, "vault.json")
+
 sites = []
-master_password = None  # Stores the verified master password (plain text)
+master_password = None
 
 def init_vault():
-    if os.path.exists("vault.json"):
-        with open("vault.json") as vault_file:
+    if os.path.exists(vault_path):
+        with open(vault_path) as vault_file:
             data = json.load(vault_file)
 
         for site in data["vault"]:
@@ -23,9 +26,8 @@ def init_vault():
 
 def add_to_vault(site: str, password: str) -> bool:
     vault_data = {"vault": {}}
-    
-    if os.path.exists("vault.json"):
-        with open("vault.json", "r") as vault_file:
+    if os.path.exists(vault_path):
+        with open(vault_path, "r") as vault_file:
             vault_data = json.load(vault_file)
 
     if site in vault_data["vault"]:
@@ -33,19 +35,21 @@ def add_to_vault(site: str, password: str) -> bool:
 
     vault_data["vault"][site] = password
 
-    with open("vault.json", "w") as vault_file:
+    with open(vault_path, "w") as vault_file:
         json.dump(vault_data, vault_file, indent=4)
         return True
 
 
-def generate_salt():
-    salt = urandom(16)
-    with open("salt.bin", "wb") as salt_file:
+def generate_salt():    
+    salt_path = os.path.join(config_dir, "salt.bin")
+    salt = os.urandom(16)
+    with open(salt_path, "wb") as salt_file:
         salt_file.write(salt)
     return salt
 
-def load_salt():
-    with open("salt.bin", "rb") as f:
+def load_salt():    
+    salt_path = os.path.join(config_dir, "salt.bin")
+    with open(salt_path, "rb") as f:
         return f.read()
 
 def password_to_fernet_key(password: str, salt: bytes) -> bytes:
@@ -72,12 +76,12 @@ def get_master_password():
     global master_password
     if master_password is not None:
         return master_password
-    with open("vault.json", "r") as vault_file:
+    with open(vault_path, "r") as vault_file:
         vault_data = json.load(vault_file)
         return vault_data["vault"]["master"]
 
 def get_password_from_vault(site: str) -> str:
-    with open("vault.json", "r") as vault_file:
+    with open(vault_path, "r") as vault_file:
         vault_data = json.load(vault_file)
         if site == "master":
             return vault_data["vault"]["master"]
