@@ -18,7 +18,6 @@ from PySide6.QtWidgets import (
 
 from password import hash_master_password
 
-
 def center_widget(widget):
     screen = QGuiApplication.primaryScreen()
     if screen is None:
@@ -185,11 +184,7 @@ class MainWindow(QMainWindow):
 
         self.list_widget = QListWidget()
         self.list_widget.addItems(ps.sites)
-        self.list_widget.itemDoubleClicked.connect(self.on_item_clicked)
         layout.addWidget(self.list_widget)
-
-        self.label = QLabel("Selected Passwords")
-        layout.addWidget(self.label)
 
         self.add_button = QPushButton("Add")
         self.add_button.clicked.connect(self.show_add_window)
@@ -204,11 +199,6 @@ class MainWindow(QMainWindow):
         layout.addWidget(self.rename_button)
         self.setLayout(layout)
         center_widget(self)
-
-    def on_item_clicked(self, item):
-        self.label.setText(ps.get_password_from_vault(item.text()))
-        clipboard = QApplication.clipboard()
-        clipboard.setText(self.label.text())
 
     def remove_button_clicked(self):
         item = self.list_widget.currentItem()
