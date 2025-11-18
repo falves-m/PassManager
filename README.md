@@ -26,4 +26,6 @@
 
 Just launch the script Build.sh and it should install it automatically. 
 
-If you want to delete it, launch Clean.sh and then delete the folder
+If you want to delete it, launch Clean.sh and then delete the folder.
+
+All contributions and feedbacks are appreciated !
