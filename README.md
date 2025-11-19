@@ -1,6 +1,6 @@
 # PassManager
 
-**PassManager** is a simple and secure password manager for Asahi KDE Plasma Linux. It allows you to store your passwords in an **encrypted vault**, generate strong passwords, and manage your accounts easily through a graphical interface.  
+**PassManager** is a simple and secure password manager for Linux. It allows you to store your passwords in an **encrypted vault**, generate strong passwords, and manage your accounts easily through a graphical interface.  
 
 ---
 
